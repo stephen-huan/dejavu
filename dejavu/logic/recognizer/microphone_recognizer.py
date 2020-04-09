@@ -8,7 +8,7 @@ class MicrophoneRecognizer(BaseRecognizer):
     default_chunksize = 8192
     default_format = pyaudio.paInt16
     default_channels = 2
-    default_samplerate = 44100
+    default_samplerate = 48000
 
     def __init__(self, dejavu):
         super().__init__(dejavu)
@@ -23,7 +23,8 @@ class MicrophoneRecognizer(BaseRecognizer):
     def start_recording(self, channels=default_channels,
                         samplerate=default_samplerate,
                         chunksize=default_chunksize):
-        print("* start recording")
+        # print("* start recording")
+        print("starting recording...")
         self.chunksize = chunksize
         self.channels = channels
         self.recorded = False
@@ -39,20 +40,23 @@ class MicrophoneRecognizer(BaseRecognizer):
             rate=samplerate,
             input=True,
             frames_per_buffer=chunksize,
+            input_device_index=3
         )
 
         self.data = [[] for i in range(channels)]
 
     def process_recording(self):
-        print("* recording")
+        # print("* recording")
         data = self.stream.read(self.chunksize)
         nums = np.fromstring(data, np.int16)
+        # print(np.max(nums))
         # print(nums)
         for c in range(self.channels):
             self.data[c].extend(nums[c::self.channels])
 
     def stop_recording(self):
-        print("* done recording")
+        # print("* done recording")
+        print("processing...")
         self.stream.stop_stream()
         self.stream.close()
         self.stream = None
